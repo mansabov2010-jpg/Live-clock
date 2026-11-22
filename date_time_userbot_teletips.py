@@ -1,17 +1,39 @@
 import asyncio
+import datetime
+import os
+import random
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+import pytz
+from PIL import Image, ImageDraw, ImageFont
+from pyrogram import Client
+from pyrogram.errors import FloodWait
+
+from lists_teletips.emojis_teletips import *
+from lists_teletips.quotes_teletips import *
+
+# Render Web Service uchun kichik HTTP health server
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, format, *args):
+        pass
+
+
+def start_http_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+
+
+start_http_server()
 
 _loop = asyncio.new_event_loop()
 asyncio.set_event_loop(_loop)
-
-from pyrogram import Client, filters
-from pyrogram.errors import FloodWait
-from lists_teletips.quotes_teletips import *
-from lists_teletips.emojis_teletips import *
-from PIL import Image, ImageDraw, ImageFont
-import datetime
-import pytz
-import random
-import os
 
 # Siz bergan ma'lumotlar
 BOT_TOKEN = "9172543528:AAES7H12sK9vRkpYo8SKuDydUZ-eyswAevg"
@@ -34,35 +56,50 @@ Date_Time_Userbot_teletips = Client(
 
 
 async def main_teletips():
-    try:
-        while True:
+    tz = pytz.timezone(TIME_ZONE)
+    font = ImageFont.truetype("ds-digit.ttf", 360)
+
+    while True:
+        try:
             if Date_Time_Userbot_teletips.is_connected:
-                Quotes_teletips = random.choice(quotes_teletips)
-                Emojis_teletips = random.choice(emojis_teletips)
-                TimeZone_teletips = datetime.datetime.now(pytz.timezone(f"{TIME_ZONE}"))
-                Time_teletips = TimeZone_teletips.strftime("%I:%M %p")
-                Date_teletips = TimeZone_teletips.strftime("%b %d")
-                Image_teletips = Image.open("image.jpg")
-                Image_font_teletips = ImageFont.truetype("ds-digit.ttf", 360)
-                Image_text_teletips = f"{Time_teletips}"
-                Image_edit_teletips = ImageDraw.Draw(Image_teletips)
-                Image_edit_teletips.text((690, 550), Image_text_teletips, (0, 255, 255), font=Image_font_teletips)
-                Image_teletips.save("Image_final_teletips.jpg")
+                quote = random.choice(quotes_teletips)
+                emoji = random.choice(emojis_teletips)
+                now = datetime.datetime.now(tz)
+                time_str = now.strftime("%I:%M %p")
+                date_str = now.strftime("%b %d")
+
+                img = Image.open("image.jpg").convert("RGB")
+                draw = ImageDraw.Draw(img)
+                draw.text((690, 550), time_str, (0, 255, 255), font=font)
+                img.save("Image_final_teletips.jpg", quality=95)
+
                 await Date_Time_Userbot_teletips.update_profile(
-                    bio=f"{Emojis_teletips} {Quotes_teletips}",
-                    last_name=f"| ⏰ {Time_teletips} | 📅 {Date_teletips}",
+                    bio=f"{emoji} {quote}",
+                    last_name=f"| ⏰ {time_str} | 📅 {date_str}",
                 )
-                await Date_Time_Userbot_teletips.set_profile_photo(photo="Image_final_teletips.jpg")
-                me = await Date_Time_Userbot_teletips.get_me()
-                photos = Date_Time_Userbot_teletips.get_chat_photos("me")
-                try:
-                    await Date_Time_Userbot_teletips.delete_profile_photos(photos[1].file_id)
-                except Exception:
-                    pass
-                print("Profile Updated!")
+                await Date_Time_Userbot_teletips.set_profile_photo(
+                    photo="Image_final_teletips.jpg"
+                )
+
+                # Eski profil rasmlarini (2-rasmdan boshlab) tozalash
+                photos = []
+                async for p in Date_Time_Userbot_teletips.get_chat_photos("me", limit=5):
+                    photos.append(p)
+                if len(photos) > 1:
+                    await Date_Time_Userbot_teletips.delete_profile_photos(
+                        [p.file_id for p in photos[1:]]
+                    )
+
+                print(f"Profile Updated! ({time_str})")
+
             await asyncio.sleep(60)
-    except FloodWait as e:
-        await asyncio.sleep(e.x)
+
+        except FloodWait as e:
+            print(f"FloodWait: {e.value}s kutilmoqda...")
+            await asyncio.sleep(e.value + 2)
+        except Exception as err:
+            print(f"Xato yuz berdi: {err}")
+            await asyncio.sleep(15)
 
 
 print("DATE TIME USERBOT IS ALIVE!")
