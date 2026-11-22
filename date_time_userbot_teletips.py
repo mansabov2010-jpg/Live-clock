@@ -1,3 +1,8 @@
+import asyncio
+
+_loop = asyncio.new_event_loop()
+asyncio.set_event_loop(_loop)
+
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from lists_teletips.quotes_teletips import *
@@ -5,7 +10,6 @@ from lists_teletips.emojis_teletips import *
 from PIL import Image, ImageDraw, ImageFont
 import datetime
 import pytz
-import asyncio
 import random
 import os
 
