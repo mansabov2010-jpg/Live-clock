@@ -1,0 +1,9 @@
+BOT_TOKEN = "9172543528:AAES7H12sK9vRkpYo8SKuDydUZ-eyswAevg"
+
+ADMIN_IDS = [
+    7986354170,
+    7637155944,
+]
+
+CHANNEL_USERNAME = "@AniKinolar_kanal"
+OWNER_USERNAME = "@Yegerist_mvp"
