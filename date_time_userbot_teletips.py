@@ -19,9 +19,9 @@ ADMIN_IDS = [7986354170, 7637155944]
 CHANNEL_USERNAME = "@AniKinolar_kanal"
 OWNER_USERNAME = "@Yegerist_mvp"
 
-# Pyrogram userbot uchun zarur maydonlar (o'zingiznikini kiriting)
-API_ID = int(os.environ.get("API_ID", "0"))
-API_HASH = os.environ.get("API_HASH", "")
+# Pyrogram userbot sozlamalari
+API_ID = int(os.environ.get("API_ID", "34334454"))
+API_HASH = os.environ.get("API_HASH", "a79d7ff6c07f5654ca52d8bbb69a68c5")
 SESSION_STRING = os.environ.get("SESSION_STRING", "")
 TIME_ZONE = os.environ.get("TIME_ZONE", "Asia/Tashkent")
 
